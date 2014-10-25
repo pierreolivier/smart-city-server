@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Statistiques évolutions</title>
+	<meta charset="utf-8" />
+	<!-- // <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script> -->
+	<script src="./js/Chart.js"></script>
+
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	<script type="text/javascript" src="./js/dist/jquery.jqplot.min.js"></script>
+	<script type="text/javascript" src="./js/dist/plugins/jqplot.pieRenderer.min.js"></script>
+	<link rel="stylesheet" type="text/css" href="./js/dist/jquery.jqplot.min.css" />
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+	<script src="http://code.highcharts.com/modules/exporting.js"></script>
+	<script src="./js/StyleChart.js"></script>
+	
+	<script type="text/javascript">
+	function GetXmlHttpObject() {
+		if (window.XMLHttpRequest) { return new XMLHttpRequest(); }
+		if (window.ActiveXObject)  { return new ActiveXObject("Microsoft.XMLHTTP"); }
+		return null;
+	}
+
+		var datDebDef = '1900-1-1',
+			today = new Date(),
+			year = today.getFullYear(),
+			month = today.getMonth() + 1,
+			day = today.getDate(),
+			datFinDef = ""+year+"-"+month+"-"+day
+			ajaxRequest=GetXmlHttpObject();
+
+
+		if (ajaxRequest===null) {
+			alert("This browser does not support HTTP Request");
+		}
+
+		$(document).ready(function(){
+		    var s1 = [['Traités',7], ['Nouveaux',13.3], ['En cours',14.7]];
+		         
+		    var plot8 = $.jqplot('pie8', [s1], {
+		        grid: {
+		            drawBorder: false,
+		            drawGridlines: false,
+		            background: '#ffffff',
+		            shadow:false
+		        },
+		        axesDefaults: {
+		             
+		        },
+		        seriesDefaults:{
+		            renderer:$.jqplot.PieRenderer,
+		            rendererOptions: {
+		                showDataLabels: true
+		            }
+		        },
+		        legend: {
+		            show: true,
+		            rendererOptions: {
+		                numberRows: 1
+		            },
+		            location: 's'
+		        }
+		    });
+		});
+
+	function GetXmlHttpObject() {
+		if (window.XMLHttpRequest) { return new XMLHttpRequest(); }
+		if (window.ActiveXObject)  { return new ActiveXObject("Microsoft.XMLHTTP"); }
+		return null;
+	}
+
+	function affichage(){
+		// si la requête est terminée
+		if (ajaxRequest.readyState===4) {
+
+			// si la requête s'est bien déroulée
+			if (ajaxRequest.status===200) {
+				try 
+				{	
+					var stat=JSON.parse(ajaxRequest.responseText);
+					//removeMarkers();
+				}
+				
+				catch (error){
+					//removeMarkers();
+				}	
+			}
+		}
+	}
+
+	$(function () {
+	    $('#container').highcharts({
+	        chart: {
+	            plotBackgroundColor: null,
+	            plotBorderWidth: null,
+	            plotShadow: false
+	        },
+	        title: {
+	            text: 'Browser market shares at a specific website, 2010'
+	        },
+	        tooltip: {
+	    	    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+	        },
+	        plotOptions: {
+	            pie: {
+	                allowPointSelect: true,
+	                cursor: 'pointer',
+	                dataLabels: {
+	                    enabled: true,
+	                    color: '#000000',
+	                    connectorColor: '#000000',
+	                    format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+	                }
+	            }
+	        },
+	        series: [{
+	            type: 'pie',
+	            name: 'Browser share',
+	            data: [
+	                ['Nouveaux',   45.0],
+	                ['En cours',       26.8],
+	                {
+	                    name: 'Traités',
+	                    y: 12.8,
+	                    sliced: false,
+	                    selected: true
+	                }
+	            ]
+	        }]
+	    });
+	});
+
+	function getStat(){
+		var datedeb = document.form1.year1.options[document.form1.year1.selectedIndex].value+"-"+document.form1.month1.options[document.form1.month1.selectedIndex].value+"-"+document.form1.day1.options[document.form1.day1.selectedIndex].value;
+		var datefin = document.form1.year2.options[document.form1.year2.selectedIndex].value+"-"+document.form1.month2.options[document.form1.month2.selectedIndex].value+"-"+document.form1.day2.options[document.form1.day2.selectedIndex].value;
+		ajaxRequest.onreadystatechange = affichage();
+		ajaxRequest.open('GET','http://10.68.228.107:8080/getStat?dd='+datedeb+'&df='+datefin, false);
+		ajaxRequest.send(null); 
+	}	
+	</script>	
+
+</head>
+<body>
+	<div style="width:800px;height:600px;">
+		<canvas id="doughnut" height="300" width="200"></canvas>
+		<canvas id="line" height="300" width="200"></canvas>
+		<canvas id="polarArea" height="300" width="200"></canvas>
+		<canvas id="bar" height="300" width="200"></canvas>
+		<canvas id="pie" height="300" width="200"></canvas>
+		<canvas id="radar" height="300" width="200"></canvas>
+	</div>
+
+	<div id="pie8" style="margin-top:20px; margin-left:20px; width:300px; height:300px;"></div>
+
+	<script>
+
+		var doughnutData = [
+				{
+					value: 30,
+					color:"#F7464A"
+				},
+				{
+					value : 50,
+					color : "#46BFBD"
+				},
+				{
+					value : 100,
+					color : "#FDB45C"
+				},
+				{
+					value : 40,
+					color : "#949FB1"
+				},
+				{
+					value : 120,
+					color : "#4D5360"
+				}
+			
+			];
+		var lineChartData = {
+			labels : ["Traités","Nouveaux","En cours","","","",""],
+			datasets : [
+				{
+					fillColor : "rgba(220,220,220,0.5)",
+					strokeColor : "rgba(220,220,220,1)",
+					pointColor : "rgba(220,220,220,1)",
+					pointStrokeColor : "#fff",
+					data : [65,59,90,81,56,55,40]
+				},
+				{
+					fillColor : "rgba(151,187,205,0.5)",
+					strokeColor : "rgba(151,187,205,1)",
+					pointColor : "rgba(151,187,205,1)",
+					pointStrokeColor : "#fff",
+					data : [28,48,40,19,96,27,100]
+				}
+			]
+			
+		};
+		var pieData = [
+				{
+					value: 30,
+					color:"#F38630",
+					label: "En cours"
+				},
+				{
+					value : 50,
+					color : "#E0E4CC",
+					label : "Nouveaux"
+				},
+				{
+					value : 100,
+					color : "#69D2E7",
+					label : "Traités"
+				}
+			
+			];
+		var barChartData = {
+			labels : ["January","February","March","April","May","June","July"],
+			datasets : [
+				{
+					fillColor : "rgba(220,220,220,0.5)",
+					strokeColor : "rgba(220,220,220,1)",
+					data : [65,59,90,81,56,55,40]
+				},
+				{
+					fillColor : "rgba(151,187,205,0.5)",
+					strokeColor : "rgba(151,187,205,1)",
+					data : [28,48,40,19,96,27,100]
+				}
+			]
+			
+		};
+		var chartData = [
+				{
+					value : Math.random(),
+					color: "#D97041"
+				},
+				{
+					value : Math.random(),
+					color: "#C7604C"
+				},
+				{
+					value : Math.random(),
+					color: "#21323D"
+				},
+				{
+					value : Math.random(),
+					color: "#9D9B7F"
+				},
+				{
+					value : Math.random(),
+					color: "#7D4F6D"
+				},
+				{
+					value : Math.random(),
+					color: "#584A5E"
+				}
+			];
+		var radarChartData = {
+			labels : ["","","","","","",""],
+			datasets : [
+				{
+					fillColor : "rgba(220,220,220,0.5)",
+					strokeColor : "rgba(220,220,220,1)",
+					pointColor : "rgba(220,220,220,1)",
+					pointStrokeColor : "#fff",
+					data : [65,59,90,81,56,55,40]
+				},
+				{
+					fillColor : "rgba(151,187,205,0.5)",
+					strokeColor : "rgba(151,187,205,1)",
+					pointColor : "rgba(151,187,205,1)",
+					pointStrokeColor : "#fff",
+					data : [28,48,40,19,96,27,100]
+				}
+			]
+			
+		};
+		new Chart(document.getElementById("doughnut").getContext("2d")).Doughnut(doughnutData);
+		new Chart(document.getElementById("line").getContext("2d")).Line(lineChartData);
+		new Chart(document.getElementById("radar").getContext("2d")).Radar(radarChartData);
+		new Chart(document.getElementById("polarArea").getContext("2d")).PolarArea(chartData);
+		new Chart(document.getElementById("bar").getContext("2d")).Bar(barChartData);
+		new Chart(document.getElementById("pie").getContext("2d")).Pie(pieData);
+	</script>
+	<div id="container" style="min-width: 400px; height: 400px; margin: 0 auto"></div>
+
+
+	<div id="new" name="new">
+		<p> Les nouvelles déclarations du jour </p>
+		<p> Récapitulatif de cette semaine </p>
+	</div>
+		<form action="#" method="post" name="form1">
+			<p>Date début: </p>
+			<select name="year1">
+				<option value="2013" selected >2013</option>
+				<option value="2014">2014</option>
+				<option value="2015">2015</option>
+			</select> /
+			<select name="month1">
+				<option value="01">Jan</option>
+				<option value="02">Feb</option>
+				<option value="03">Mar</option>
+				<option value="04">Apr</option>
+				<option value="05">May</option>
+				<option value="06" selected >Jun</option>
+				<option value="07">Jul</option>
+				<option value="08">Aug</option>
+				<option value="09">Sep</option>
+				<option value="10">Oct</option>
+				<option value="11">Nov</option>
+				<option value="12">Dec</option>
+			</select> / 
+			<select name="day1">
+				<option value="01">01</option>
+				<option value="02">02</option>
+				<option value="03">03</option>
+				<option value="04">04</option>
+				<option value="05">05</option>
+				<option value="06">06</option>
+				<option value="07">07</option>
+				<option value="08">08</option>
+				<option value="09">09</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+				<option value="15">15</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+				<option value="18">18</option>
+				<option value="19">19</option>
+				<option value="20">20</option>
+				<option value="21">21</option>
+				<option value="22">22</option>
+				<option value="23">23</option>
+				<option value="24">24</option>
+				<option value="25">25</option>
+				<option value="26">26</option>
+				<option value="27">27</option>
+				<option value="28">28</option>
+				<option value="29">29</option>
+				<option value="30">30</option>
+				<option value="31">31</option>
+			</select>  &nbsp;
+			<p>Date fin: </p>
+			<select name="year2">
+				<option value="2013">2013</option>
+				<option value="2014">2014</option>
+				<option value="2015">2015</option>
+			</select> /
+			<select name="month2">
+				<option value="01">Jan</option>
+				<option value="02">Feb</option>
+				<option value="03">Mar</option>
+				<option value="04">Apr</option>
+				<option value="05">May</option>
+				<option value="06">Jun</option>
+				<option value="07">Jul</option>
+				<option value="08">Aug</option>
+				<option value="09">Sep</option>
+				<option value="10">Oct</option>
+				<option value="11">Nov</option>
+				<option value="12">Dec</option>
+			</select> / 
+			<select name="day2">
+				<option value="01">01</option>
+				<option value="02">02</option>
+				<option value="03">03</option>
+				<option value="04">04</option>
+				<option value="05">05</option>
+				<option value="06">06</option>
+				<option value="07">07</option>
+				<option value="08">08</option>
+				<option value="09">09</option>
+				<option value="10">10</option>
+				<option value="11">11</option>
+				<option value="12">12</option>
+				<option value="13">13</option>
+				<option value="14">14</option>
+				<option value="15">15</option>
+				<option value="16">16</option>
+				<option value="17">17</option>
+				<option value="18">18</option>
+				<option value="19">19</option>
+				<option value="20">20</option>
+				<option value="21">21</option>
+				<option value="22">22</option>
+				<option value="23">23</option>
+				<option value="24">24</option>
+				<option value="25">25</option>
+				<option value="26">26</option>
+				<option value="27">27</option>
+				<option value="28">28</option>
+				<option value="29">29</option>
+				<option value="30">30</option>
+				<option value="31">31</option>
+			</select>  &nbsp;
+			<tr>
+					<td><input type="button" onclick="getStat()" value=Filtrer></input></td>
+				</tr>
+		</form>
+</body>
+</html>

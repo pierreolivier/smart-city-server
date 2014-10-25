@@ -1,0 +1,22 @@
+    h3 {font-weight:bold;margin:2px 0;}
+    p { margin:4px; padding:2px; }
+    #map {
+		/*display:block;*/
+		width:900px;
+		height:400px;
+	}
+
+	/*.leaflet-map-focus {
+		width:1px;height:1px;border:0;background:transparent;outline:none;
+	}*/
+
+	/* ne semble pas utile */
+	/*.leaflet-container leaflet-fade-anim{
+		position: relative;
+	}
+	*/
+	#parametresAffichage{
+		position: absolute; 
+		top: 1em; 
+		overflow:hidden;
+	}

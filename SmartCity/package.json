@@ -1,0 +1,35 @@
+{
+  "name": "LeafLetNodejsBDD",
+  "version": "0.0.0",
+  "description": "API de ouf",
+  "main": "index.js",
+  "dependencies": {
+    "connect": "~2.8.2",
+    "emailjs": "~0.3.4",
+    "async": "~0.2.9",
+    "error": "~1.0.1",
+    "http-auth": "~1.2.7",
+    "formidable": "~1.0.14",
+    "multipart": "~0.0.0",
+    "node-login": "~1.3.2",
+    "http-proxy": "~0.10.3",
+    "node-inspector": "~0.2.0beta4",
+    "nodemon": "~0.7.8",
+
+    "pg": "~2.0.0",
+    "pkginfo": "~0.3.0",
+    "querystring": "~0.2.0",
+    "server": "~0.0.3",
+    "socket.io": "~0.9.16",
+    "sync": "~0.2.2",
+    "seq": "~0.3.5",
+    "url": "~0.7.9",
+    "utile": "~0.1.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "BSD"
+}

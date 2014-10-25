@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Esprit Citoyen</title>
+		<meta charset="utf-8" />
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+		<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css" />
+		<!--[if lte IE 9]><link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css" /><![endif]-->
+		<!--[if lte IE 8]><link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css" /><![endif]-->
+		<!--[if lte IE 7]><link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css" /><![endif]-->
+		<script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
+		<script type="text/javascript" src="http://code.jquery.com/jquery-latest.pack.js"></script>
+		<script type="text/javascript" src="./js/esprit.js" ></script>
+		<link rel="stylesheet" href="css/leaflet-layout.css"/>
+
+		<script type="text/javascript">
+		var map,
+		port = 80;
+
+		$(document).ready(function() {
+			// jQuery.ajax({
+			// 	type: 'GET',
+			// 	url: 'http://localhost:'+port+'/determineCSS', 
+			// 		// data: {
+			// 		//   username: 'OyoKooN',
+			// 		//   age: 19,
+			// 		//   admin: true
+			// 		// }, 
+			// 		success: function(data, textStatus, jqXHR) { 
+			// 	  		//on ajoute le css renvoyé dans le fichier html
+			// 	  		loadCSSPerso(data); 		
+			// 	  	},
+			// 	  	error: function(jqXHR, textStatus, errorThrown) {
+			// 	    // Une erreur s'est produite lors de la requete
+			// 	}
+			// });
+
+				//récupère le css et l'inclue dans la page
+				function loadCSSPerso(css){
+					var headID = document.getElementsByTagName("head")[0];
+					var cssNode = document.createElement('link');
+					cssNode.type = 'text/css';
+					cssNode.rel = 'stylesheet';
+					cssNode.href = './css/'+css;
+					cssNode.media = 'screen';
+					headID.appendChild(cssNode);
+				}
+
+				//lors du clic sur le bouton déconnecter, on effectue une requete impossible pour être déconnecté
+				$('#logout').click(function(e){
+					e.preventDefault();
+					var request = new XMLHttpRequest();
+				    //on essaye d'accéder à une fonction inexistante avec de mauvais param pour être déconnecté
+				    request.open("get", "/lo", false, "false", "false");
+				    request.send();
+				    window.location.replace("http://10.24.192.110:"+port+"/");
+				});
+			});
+
+			// function getListeTaches(){
+			// 	$.getJSON('http://localhost:'+port+'/getTaches', function(data) {
+			// 	  // Construction d'une liste contenant les donnees JSON
+			// 	  var output = "<ul>";
+			// 	  // On passe en revue les cles et valeurs une a une
+			// 	  $.each(data, function(key, value) {
+			// 	    output += '<li><strong>' + key + ' : </strong>' + value + '</li>';
+			// 	  }); 
+			// 	  output += "</ul>"
+			// 	  // Enfin on insere la liste dans la page
+			// 	  $('#json-use-response').html('').html(output);
+			// 	});
+
+		  //   	jQuery.ajax({
+				//   type: 'GET',
+				//   url: 'http://localhost:'+port+'/getTaches', 
+				//   ajaxRequest3.onreadystatechange = demandeListeTaches;
+				//   // data: {
+				//   //   username: 'OyoKooN',
+				//   //   age: 19,
+				//   //   admin: true
+				//   // }, 
+				//   success: function(data, textStatus, jqXHR) {  		
+				//   },
+				// 	  error: function(jqXHR, textStatus, errorThrown) {
+				// 	    // Une erreur s'est produite lors de la requete
+				// 	  }
+				// });
+			//}
+		</script>
+	</head>
+	<body onLoad="initmap()">
+		<!-- <div id="map" class="leaflet-container leaflet-fade-anim" style="position: relative"></div> -->
+		<form action="#" method="post" name="form1">
+			<table>
+				<tr>
+					<td>
+						<div id="map" class="leaflet-container leaflet-fade-anim"></div>
+					</td>
+					<td rowspan="2">
+						<div id="parametresAffichage">
+							<div id="etatDeclaration">
+								<input type="checkbox" name="todo" id="todo" onchange="askForPlots()"/> <label for="todo">A traiter</label><br />
+								<input type="checkbox" name="inprogress" id="inprogress" onchange="askForPlots()" /> <label for="inprogress">En cours</label><br />
+								<input type="checkbox" name="done" id="done" onchange="askForPlots()" /> <label for="done">Traités</label><br />
+							</div>
+							<p>Date début: </p>
+							<select name="year1">
+								<option value="2013" selected >2013</option>
+								<option value="2014">2014</option>
+								<option value="2015">2015</option>
+							</select> /
+							<select name="month1">
+								<option value="01">Jan</option>
+								<option value="02">Feb</option>
+								<option value="03">Mar</option>
+								<option value="04">Apr</option>
+								<option value="05">May</option>
+								<option value="06" selected >Jun</option>
+								<option value="07">Jul</option>
+								<option value="08">Aug</option>
+								<option value="09">Sep</option>
+								<option value="10">Oct</option>
+								<option value="11">Nov</option>
+								<option value="12">Dec</option>
+							</select> / 
+							<select name="day1">
+								<option value="01">01</option>
+								<option value="02">02</option>
+								<option value="03">03</option>
+								<option value="04">04</option>
+								<option value="05">05</option>
+								<option value="06">06</option>
+								<option value="07">07</option>
+								<option value="08">08</option>
+								<option value="09">09</option>
+								<option value="10">10</option>
+								<option value="11">11</option>
+								<option value="12">12</option>
+								<option value="13">13</option>
+								<option value="14">14</option>
+								<option value="15">15</option>
+								<option value="16">16</option>
+								<option value="17">17</option>
+								<option value="18">18</option>
+								<option value="19">19</option>
+								<option value="20">20</option>
+								<option value="21">21</option>
+								<option value="22">22</option>
+								<option value="23">23</option>
+								<option value="24">24</option>
+								<option value="25">25</option>
+								<option value="26">26</option>
+								<option value="27">27</option>
+								<option value="28">28</option>
+								<option value="29">29</option>
+								<option value="30">30</option>
+								<option value="31">31</option>
+							</select>  &nbsp;
+							<p>Date fin: </p>
+							<select name="year2">
+								<option value="2013">2013</option>
+								<option value="2014">2014</option>
+								<option value="2015">2015</option>
+							</select> /
+							<select name="month2">
+								<option value="01">Jan</option>
+								<option value="02">Feb</option>
+								<option value="03">Mar</option>
+								<option value="04">Apr</option>
+								<option value="05">May</option>
+								<option value="06">Jun</option>
+								<option value="07">Jul</option>
+								<option value="08">Aug</option>
+								<option value="09">Sep</option>
+								<option value="10">Oct</option>
+								<option value="11">Nov</option>
+								<option value="12">Dec</option>
+							</select> / 
+							<select name="day2">
+								<option value="01">01</option>
+								<option value="02">02</option>
+								<option value="03">03</option>
+								<option value="04">04</option>
+								<option value="05">05</option>
+								<option value="06">06</option>
+								<option value="07">07</option>
+								<option value="08">08</option>
+								<option value="09">09</option>
+								<option value="10">10</option>
+								<option value="11">11</option>
+								<option value="12">12</option>
+								<option value="13">13</option>
+								<option value="14">14</option>
+								<option value="15">15</option>
+								<option value="16">16</option>
+								<option value="17">17</option>
+								<option value="18">18</option>
+								<option value="19">19</option>
+								<option value="20">20</option>
+								<option value="21">21</option>
+								<option value="22">22</option>
+								<option value="23">23</option>
+								<option value="24">24</option>
+								<option value="25">25</option>
+								<option value="26">26</option>
+								<option value="27">27</option>
+								<option value="28">28</option>
+								<option value="29">29</option>
+								<option value="30">30</option>
+								<option value="31">31</option>
+							</select>  &nbsp;
+							<p>Liste des taches</p>
+							<div id="listeTaches"></div>	
+							<p>Liste du personnel</p>
+							<div id="listePersonnel" ></div>
+							<input type="button" onclick="affecter()" value="Affecter" />	
+						</div>			
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<p>Détails sur la déclaration</p><br />
+						<div id="numDeclaration"></div>
+						<div id="etat"></div>
+						<div id="persAffectee"></div>
+						<div id="date"></div>
+						<div id="nature"></div>
+						<div id="descriptif"></div>
+						<table>
+							<tr style='vertical-align:middle;'>
+								<td >
+									<div id="son"></div>	
+								</td>
+								<td>
+									<div id="video"></div>
+								</td>
+								<td id="photo"></td>
+							</tr>
+						</table> 
+					</td>
+				</tr>
+				<tr>
+					<td><input type="button" onclick="askForPlots()" value=Filtrer></input></td>
+					<td>
+						<div id="logout" name="logout">
+							<!-- <input type="button" onclick="ClearAuthentication('http://localhost:8887/')" value=Déconnexion></input> -->
+							<input type="button" value="Déconnexion"></input>
+						</div>	
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<div id="supprimer"></div>
+					</td>
+				</tr>
+			</table> 
+		</form>
+	</body>
+</html>

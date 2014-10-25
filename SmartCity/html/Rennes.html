@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Esprit Citoyen - Rennes</title>
+    <meta charset="utf-8">
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css">
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css">
+    <![endif]-->
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css">
+    <![endif]-->
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css">
+    <![endif]-->
+    <script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.pack.js"></script>
+    <script type="text/javascript" src="./js/esprit.js"></script>
+    <link rel="stylesheet" href="css/leaflet-layout.css">
+    <link rel="stylesheet" href="css/Rennes.css">
+    <script type="text/javascript" src="/socket.io/lib/socket.io.js"></script>
+    <script type="text/javascript">
+      var port = 80;
+
+      var socket = io.connect();
+      socket.on('newDec', function (mess) {
+        if (mess == login)
+          alert('Une nouvelle déclaration pour toi');
+          askForPlots();
+          getListeTaches();
+      });
+   
+      $(document).ready(function() {
+        $('#todo').change(function(e){
+          askForPlots(e);
+        });
+        $('#inprogress').change(function(e){
+          askForPlots(e);
+        });
+        $('#done').change(function(e){
+          askForPlots(e);
+        });
+        //lors du clic sur le bouton déconnecter, on effectue une requete impossible pour être déconnecté
+        $('#logout').click(function(e){
+          e.preventDefault();
+          var request = new XMLHttpRequest();
+          //on essaye d'accéder à une fonction inexistante avec de mauvais param pour être déconnecté
+          request.open("get", "/lo", false, "false", "false");
+          request.send();
+          window.location.replace("http://10.24.192.110:"+port+"/");
+        });
+      });
+    </script>
+  </head>
+  <body onload="initmap(48.1104,-1.65516,12)">
+    <form action="#" method="post" name="form1">
+      <table>
+        <tr>
+          <td>
+            <div id="parametresAffichage">
+              <div id="etatDeclaration">
+                <input id="todo" type="checkbox" name="todo">
+                <label for="todo">Nouveaux</label><br>
+                <input id="inprogress" type="checkbox" name="inprogress">
+                <label for="inprogress">En cours</label><br>
+                <input id="done" type="checkbox" name="done">
+                <label for="done">Traités</label><br>
+              </div>
+              <div id="filtrageDate">  
+                <p>Date début: </p>
+                <select name="year1">
+                  <option value="2013" selected="selected">2013</option>
+                  <option value="2014">2014</option>
+                  <option value="2015">2015</option>
+                </select>/
+                <select name="month1">
+                  <option value="01">Jan</option>
+                  <option value="02">Feb</option>
+                  <option value="03">Mar</option>
+                  <option value="04">Apr</option>
+                  <option value="05">May</option>
+                  <option value="06" selected="selected">Jun</option>
+                  <option value="07">Jul</option>
+                  <option value="08">Aug</option>
+                  <option value="09">Sep</option>
+                  <option value="10">Oct</option>
+                  <option value="11">Nov</option>
+                  <option value="12">Dec</option>
+                </select>/
+                <select name="day1">
+                  <option value="01">01</option>
+                  <option value="02">02</option>
+                  <option value="03">03</option>
+                  <option value="04">04</option>
+                  <option value="05">05</option>
+                  <option value="06">06</option>
+                  <option value="07">07</option>
+                  <option value="08">08</option>
+                  <option value="09">09</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                  <option value="13">13</option>
+                  <option value="14">14</option>
+                  <option value="15">15</option>
+                  <option value="16">16</option>
+                  <option value="17">17</option>
+                  <option value="18">18</option>
+                  <option value="19">19</option>
+                  <option value="20">20</option>
+                  <option value="21">21</option>
+                  <option value="22">22</option>
+                  <option value="23">23</option>
+                  <option value="24">24</option>
+                  <option value="25">25</option>
+                  <option value="26">26</option>
+                  <option value="27">27</option>
+                  <option value="28">28</option>
+                  <option value="29">29</option>
+                  <option value="30">30</option>
+                  <option value="31">31</option>
+                </select>
+                <p>Date fin: </p>
+                <select name="year2">
+                  <option value="2013">2013</option>
+                  <option value="2014">2014</option>
+                  <option value="2015">2015</option>
+                </select>/
+                <select name="month2">
+                  <option value="01">Jan</option>
+                  <option value="02">Feb</option>
+                  <option value="03">Mar</option>
+                  <option value="04">Apr</option>
+                  <option value="05">May</option>
+                  <option value="06">Jun</option>
+                  <option value="07">Jul</option>
+                  <option value="08">Aug</option>
+                  <option value="09">Sep</option>
+                  <option value="10">Oct</option>
+                  <option value="11">Nov</option>
+                  <option value="12">Dec</option>
+                </select>/
+                <select name="day2">
+                  <option value="01">01</option>
+                  <option value="02">02</option>
+                  <option value="03">03</option>
+                  <option value="04">04</option>
+                  <option value="05">05</option>
+                  <option value="06">06</option>
+                  <option value="07">07</option>
+                  <option value="08">08</option>
+                  <option value="09">09</option>
+                  <option value="10">10</option>
+                  <option value="11">11</option>
+                  <option value="12">12</option>
+                  <option value="13">13</option>
+                  <option value="14">14</option>
+                  <option value="15">15</option>
+                  <option value="16">16</option>
+                  <option value="17">17</option>
+                  <option value="18">18</option>
+                  <option value="19">19</option>
+                  <option value="20">20</option>
+                  <option value="21">21</option>
+                  <option value="22">22</option>
+                  <option value="23">23</option>
+                  <option value="24">24</option>
+                  <option value="25">25</option>
+                  <option value="26">26</option>
+                  <option value="27">27</option>
+                  <option value="28">28</option>
+                  <option value="29">29</option>
+                  <option value="30">30</option>
+                  <option value="31">31</option>
+                </select>
+              </div>
+              <p>Liste des taches</p>
+              <div id="listeTaches"></div>
+              <p>Liste du personnel</p>
+              <div id="listePersonnel"></div>
+              <input type="button" onclick="affecter()" value="Affecter">
+            </div>
+          </td>
+          <td>
+            <div id="map" class="leaflet-container leaflet-fade-anim"></div>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div id="logout" name="logout">
+              <input type="button" value="Déconnexion">
+            </div>
+            <div id="supprimer"></div>
+          </td>
+          <td colspan="3">
+            <div id="detailsDeclaration">
+              <p>Détails sur la déclaration</p><br>
+              <div id="numDeclaration"></div>
+              <div id="etat"></div>
+              <div id="persAffectee"></div>
+              <div id="date"></div>
+              <div id="nature"></div>
+              <div id="descriptif"></div>
+              <table>
+                <tr style="vertical-align: middle;">
+                  <td>
+                    <div id="son"></div>
+                  </td>
+                  <td>
+                    <div id="video"></div>
+                  </td>
+                  <td id="photo"></td>
+                </tr>
+              </table>
+            </div>
+          </td>
+        </tr>
+      </table>
+    </form>
+  </body>
+</html>

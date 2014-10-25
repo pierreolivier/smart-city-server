@@ -1,0 +1,9 @@
+body{
+	background: green;
+}
+#map {
+		/*display:block;*/
+		width:1200px;
+		height:400px;
+	}
+

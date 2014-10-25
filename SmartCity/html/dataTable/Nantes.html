@@ -1,0 +1,512 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>Esprit Citoyen - Nantes</title>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.css">
+    <!--[if lte IE 9]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css">
+    <![endif]-->
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css">
+    <![endif]-->
+    <!--[if lte IE 7]>
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.ie.css">
+    <![endif]-->
+    <script src="http://cdn.leafletjs.com/leaflet-0.5.1/leaflet.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-latest.pack.js"></script>
+    <script type="text/javascript" src="./js/esprit.js"></script>
+    <link rel="stylesheet" href="css/leaflet-layout.css">
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script src="http://matchingnotes.com/javascripts/leaflet-google.js"></script>
+
+    <!-- <link rel="stylesheet" href="css/Nantes.css"> -->
+    <!-- CSS -->
+    <link href="../assets/css/bootstrap.css" rel="stylesheet">
+
+
+
+  <style type="text/css" title="currentStyle">
+    @import "DataTables/DataTables-1.9.4/media/css/demo_page.css";
+    @import "DataTables/DataTables-1.9.4/media/css/demo_table.css";
+    /*@import "DataTables-1.9.4/extras/TableTools/media/css/TableTools.css";*/
+    /*@import "http://jquery-datatables-editable.googlecode.com/svn/trunk/media/css/demo_validation.css";*/
+    /*@import "http://jquery-datatables-editable.googlecode.com/svn/trunk/media/css/themes/base/jquery-ui.css";*/
+    /*@import "DataTables-1.9.4/examples/examples_support/themes/smoothness/jquery-ui-1.8.4.custom.css";*/
+    @import "DataTables/DataTables-1.9.4/extras/TableTools/media/css/TableTools_JUI.css";
+    /*@import "DataTables-1.9.4/media/css/demo_table_jui.css";*/
+
+    /*@import "DataTables-1.9.4/media/css/jquery-ui-1.7.2.custom.css";*/
+    /*@import "DataTables-1.9.4/media/css/jquery-ui.css";*/
+  </style>
+  <script type="text/javascript" language="javascript" src="DataTables/DataTables-1.9.4/media/js/jquery.js"></script>
+  <script type="text/javascript" language="javascript" src="DataTables/DataTables-1.9.4/media/js/jquery.dataTables.js"></script>
+  <script type="text/javascript" language="javascript" src="DataTables/DataTables-1.9.4/examples/examples_support/jquery.jeditable.js"></script>
+  <script type="text/javascript" language="javascript" src="DataTables/DataTables-1.9.4/examples/examples_support/jquery.validate.js"></script>
+  <script type="text/javascript" language="javascript" src="DataTables/DataTables-1.9.4/examples/examples_support/jquery-ui.js"></script>
+  <script type="text/javascript" language="javascript" src="DataTables/DataTables-1.9.4/examples/examples_support/jquery.dataTables.editable.js">
+  </script>
+  <script type="text/javascript" language="javascript" src="DataTables/DataTables-1.9.4/extras/TableTools/media/js/TableTools.min.js"></script>
+  <script type="text/javascript" language="javascript" src="DataTables/DataTables-1.9.4/extras/TableTools/media/js/ZeroClipboard.js"></script>
+
+  <style type="text/css">
+
+  html,
+      body {
+        height: 100%;
+        /* The html and body elements cannot have any padding or margin. */
+      }
+
+      /* Wrapper for page content to push down footer */
+      #wrap {
+        min-height: 100%;
+        height: auto !important;
+        height: 100%;
+        /* Negative indent footer by it's height */
+        margin: 0 auto -60px;
+      }
+
+      /* Set the fixed height of the footer here */
+      #push,
+      #footer {
+        height: 60px;
+      }
+      #footer {
+        background-color: #f5f5f5;
+      }
+
+      /* Lastly, apply responsive CSS fixes as necessary */
+      @media (max-width: 767px) {
+        #footer {
+          margin-left: -20px;
+          margin-right: -20px;
+          padding-left: 20px;
+          padding-right: 20px;
+        }
+      }
+
+      /* Custom page CSS
+      -------------------------------------------------- */
+      /* Not required for template or sticky footer method. */
+
+      #wrap > .container {
+        padding-top: 60px;
+      }
+      .container .credit {
+        margin: 20px 0;
+      }
+
+      code {
+        font-size: 80%;
+      }
+
+
+
+  /* nécessaire pour dataTable */
+    td{
+      border-bottom: 1px solid black;
+     /* border-width:1px;
+        border-style:solid;
+        border-color:black;*/
+    }
+
+    .avo-light {
+      background-color: #FFEEEE;
+    }
+    a.popup {
+    position: relative;
+    }
+
+    a.popup span {
+    display: none;
+    }
+
+    a.popup:hover span {
+    position: absolute;
+    top: 2em;
+    right: 0;
+    /*width: 200px;*/
+    /*padding: 10px;*/
+    display: block;
+    border: 3px solid #ccc;
+    /*background: #5f0;*/
+    }
+
+    /* Don't expect to write standards code for IE. ;) */
+    a.popup:hover {
+      font-size: 100%;
+    }
+  </style>
+  <script type="text/javascript" src="/socket.io/lib/socket.io.js"></script>
+
+  <script type="text/javascript" charset="utf-8">
+    var port = 80;
+    var asInitVals = new Array();
+    var socket = io.connect();
+    socket.on('newDec', function (mess) {
+        if (mess == login)
+          alert('Une nouvelle déclaration pour toi');
+          askForPlots();
+          getListeTaches();
+      });
+      socket.on('newMed', function (mess) {
+        if (mess == gidCourant)
+          //alert('Une nouvelle déclaration pour toi');
+          afficherTache(gidCourant);
+          //askForPlots();
+          //getListeTaches();
+      });
+    $(document).ready(function() {
+
+        //avec cela, on sauvegarde les champs de recherche renseignés, lors d'un retour sur la page, ils seront remis
+         jQuery("tfoot input").each( function (i) {
+          asInitVals[this.name] = this.value;
+        } );
+         
+         jQuery("tfoot input").focus( function () {
+          if ( this.className == "search_init" )
+          {
+            this.className = "";
+            this.value = "";
+          }
+        } );
+         
+         jQuery("tfoot input").blur( function (i) {
+          if ( this.value == "" )
+          {
+            this.className = "search_init";
+            this.value = asInitVals[this.name];
+          }
+        } );
+
+         var oTable = $('#example').dataTable({
+          "bProcessing": true,
+          "bServerSide": true,
+          "bJQueryUI": false,
+          "sAjaxSource": "getDataTable",
+          "sPaginationType": "full_numbers",
+          "oLanguage": {
+            "oPaginate": {
+              "sFirst": "Première",
+              "sLast": "Dernière",
+              "sNext": "Suivant",
+              "sPrevious": "Précédent"
+            },
+            //les traductions peuvent aussi se trouver dans un fichier
+            "sEmptyTable": "Aucune donnée",
+            "sInfo": "Affiche de _START_ à _END_ sur _TOTAL_ déclarations",
+            "sInfoEmpty": "Aucune donnée à afficher",
+            "sLoadingRecords": "Un instant...",
+            "sProcessing": "Chargement...",
+            "sSearch": "Rechercher dans toutes les colonnes:",
+            "sZeroRecords": "Aucun résultat correpondant",
+            "sLengthMenu": "Afficher _MENU_ déclarations",
+            "sInfoFiltered": "(filtrées sur un total de _MAX_ déclarations)",
+          },
+          "bStateSave": true,
+          "fnInitComplete": function() {
+            var oSettings = $('#example').dataTable().fnSettings();
+            for ( var i=0 ; i<oSettings.aoPreSearchCols.length ; i++ ){
+              if(oSettings.aoPreSearchCols[i].sSearch.length>0){
+                $("tfoot input")[i].value = oSettings.aoPreSearchCols[i].sSearch;
+                $("tfoot input")[i].className = "";
+              }
+            }
+          },
+          // fonction appelée juste avant d'afficher les données dans le tableau
+          "fnRowCallback": function( nRow, aData, iDisplayIndex, iDisplayIndexFull ) {
+            // console.log(aData);
+            var thePhoto = aData[8],
+                //imgTag ="",
+                theName = aData[4] + " " +aData[3],
+                theEtat = aData[1];
+            if (thePhoto !== '' && thePhoto !== 'null' && thePhoto !== null){
+              console.log("photo: "+thePhoto);
+              $('td:eq(7)', nRow).html("<a href='#' class='popup'><img src='media/apn.png'  height='40' weight='40' style='cursor: pointer;'/><span><img src='uploads/img.png' height=500px  weight=500px style='cursor: pointer;'/></span></a>"); //permet d'afficher la photo au survol
+             }
+            $('td:eq(3)', nRow).html(theName); // remplace la colonne 3 par le nom et prenom de la personne
+            // $('td:eq(8)', nRow).html(imgTag); // permet l'affichage dans la colonne 8 des images avec leur nom
+
+            //petit système à améliorer pour mettre en évidence certaines déclarations
+            //on peut aussi comparer les dates de prise en charge, si cela fait trop longtemps que ca n'a pas bougé....
+            //par contre, cela entraîne un bug de couleur pour la sélection des lignes, 
+            //if (theEtat == '001')
+            if (theEtat == '001'){
+              // on peut ajouter des classes à toutes les cellules
+             //$('td', nRow).addClass( "avo-light" );
+              $('td', nRow).css('background-color', '#FFEEEE');
+            }
+            if (theEtat == '010')  
+              $('td', nRow).css('background-color', '#E2E4FF');
+          },
+          // tout le nécessaire pour exporter les toutes les données de la liste
+          "sDom": '<"H"Tfr>t<"F"ip>',
+          "oTableTools": {
+            "sSwfPath": "DataTables/DataTables-1.9.4/extras/TableTools/media/swf/copy_csv_xls_pdf.swf",
+            "aButtons": [
+                //il y a un soucis lors de
+                "copy", "print", "xls",
+                {
+                  "sExtends": "pdf",
+                  "sButtonText": "PDF",
+                  // "mColumns": "visible",
+                  "sPdfOrientation": "landscape",
+                }
+
+            ],
+            "sRowSelect": "multi"
+          },
+          //permet de modifier l'affichage des colonnes dans le tableau
+          "aoColumns":[
+            {
+              "bVisible" : true
+            },
+            {}, //Etat
+            {},//Type
+            {},//Responsable
+            {
+              "bVisible":false
+            },
+            {},//Zone
+            {},//Adresse
+            {},//nb_notifications
+            {}//photo
+          ]
+         } ).makeEditable({
+      //permet de déterminer la manière dont sont éditables les colonnes    
+     "aoColumns":[
+                   null,
+                   {
+                     indicator: 'Enregsitrement du changement d\état...',
+                     tooltip: 'Double clic pour éditer l\'état',
+                     type: 'select',
+                     onblur: 'submit',
+                     submit: 'Ok',
+                     data: "{'1':'Non traitée','10':'En cours','100':'Terminée'}"
+                   },
+                   {
+                     indicator: 'Enregistrement du type...',
+                     tooltip: 'Double clic pour modifer le type',
+                     loadtext: 'Chargement...',
+                     type: 'select',
+                     onblur: 'cancel',
+                     submit: 'Ok',
+                     loadurl: 'getListIncidentsVille',
+                     loadtype: 'GET'
+                   },
+                   {
+                     indicator: 'Enregistrement du nouveau responsable...',
+                     tooltip: 'Double clic pour modifier le responsable',
+                     loadtext: 'Chargement...',
+                     type: 'select',
+                     submit: 'Ok',
+                     loadurl: 'getPerso',
+                     loadtype: 'GET'
+                   },
+                   {},
+                   null,
+                   null,
+                   null,
+                   null,
+     ],                  
+      sUpdateURL: "getDataTable",
+      // sAddURL: "getDataTable",
+      // sAddHttpMethod: "GET", //Used only on google.code live example because google.code server do not support POST request
+      sDeleteURL: "supprDec",
+      sDeleteHttpMethod: "GET", //Used only on google.code live example because google.code server do not support POST request
+      });
+
+      $("tfoot input").keyup( function () {
+        /* Filter on the column (the index) of this element */
+        oTable.fnFilter( this.value, $("tfoot input").index(this) );
+      });
+
+      $('#todo').change(function(e){
+        askForPlots(e);
+      });
+      $('#inprogress').change(function(e){
+
+        askForPlots(e);
+      });
+      $('#done').change(function(e){
+        askForPlots(e);
+      });
+      //lors du clic sur le bouton déconnecter, on effectue une requete impossible pour être déconnecté
+      $('#logout').click(function(e){
+        e.preventDefault();
+        var request = new XMLHttpRequest();
+        //on essaye d'accéder à une fonction inexistante avec de mauvais param pour être déconnecté
+        request.open("get", "/lo", false, "false", "false");
+        request.send();
+        window.location.replace("http://10.24.192.110:"+port+"/");
+      });
+    }); 
+  </script>
+</head>
+<body onload="initmap(47.2156,-1.558,12)" id="dt_example">
+  <div id="wrap">
+      <!-- Fixed navbar -->
+      <div class="navbar navbar-fixed-top">
+        <div class="navbar-inner">
+          <div class="container">
+            <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <a class="brand" href="#">Esprit Citoyen - Nantes</a>
+            <div class="nav-collapse collapse">
+              <ul class="nav">
+                <li class="active"><a href="#">Accueil</a></li>
+                <li><a href="#about">Statistiques</a></li>
+                <li><a href="#contact">Contact</a></li>
+                <li class="dropdown">
+                  <a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions <b class="caret"></b></a>
+                  <ul class="dropdown-menu">
+                    <li><a href="#">Supprimer la déclaration sélectionnée</a></li>
+                    <li><a href="#">Another action</a></li>
+                    <li><a href="#">Something else here</a></li>
+                    <li class="divider"></li>
+                    <li class="nav-header">Nav header</li>
+                    <li><a href="#">Separated link</a></li>
+                    <li><a href="#">One more separated link</a></li>
+                  </ul>
+                </li>
+                <li id="logout" name="logout"><a href="#contact">Déconnexion</a></li>
+              </ul>
+            </div><!--/.nav-collapse -->
+          </div>
+        </div>
+      </div>
+      <div class="container">
+        <div class="page-header">
+        <form action="#" method="post" name="form1">
+          <table>
+            <tr>
+               <td colspan="1">
+                <div id="parametresAffichage">
+                  <div id="etatDeclaration">
+                    <input id="todo" type="checkbox" name="todo">
+                    <label for="todo">A traiter</label><br>
+                    <input id="inprogress" type="checkbox" name="inprogress">
+                    <label for="inprogress">En cours</label><br>
+                    <input id="done" type="checkbox" name="done">
+                    <label for="done">Traités</label><br>
+                  </div>
+                  <div id="filtrageDate">  
+                    <p>Date début: </p>
+                    <select name="year1">
+                      <option value="2013" selected="selected">2013</option>
+                      <option value="2014">2014</option>
+                      <option value="2015">2015</option>
+                    </select>/
+                    <select name="month1">
+                      <option value="01">Jan</option>
+                      <option value="12">Dec</option>
+                    </select>/
+                    <select name="day1">
+                      <option value="01">01</option>
+                      <option value="31">31</option>
+                    </select>
+                    <p>Date fin: </p>
+                    <select name="year2">
+                      <option value="2013">2013</option>
+                      <option value="2014">2014</option>
+                      <option value="2015">2015</option>
+                    </select>/
+                    <select name="month2">
+                      <option value="01">Jan</option>
+                      <option value="12">Dec</option>
+                    </select>/
+                    <select name="day2">
+                      <option value="01">01</option>
+                      <option value="31">31</option>
+                    </select>
+                  </div>
+                </div>
+              </td>
+              <td colspan="3">
+                <div id="map" class="leaflet-container leaflet-fade-anim"></div>
+              </td>
+             
+            </tr>
+            <tr>
+              <div id="demo">
+    <!-- <form id="formAddNewRow" action="#" title="Add new record"> -->
+          <!-- cet input hidden est utile pour avoir lors des modifications un id correpondant au gid de la ligne modifiée -->
+          <input type="hidden" name="id" id="id" rel="0" value="DATAROWID" />
+      <div class="add_delete_toolbar" />
+      <table cellpadding="0" cellspacing="0" border="0" class="display" id="example" width="100%">
+        <thead>
+          <tr>
+            <th>Gid</th>
+            <th>Etat</th>
+            <th>Type</th>
+            <th>Responsable</th>
+            <th>Prenom</th>
+            <th>Zone</th>
+            <th>Adresse</th>
+            <th>Nb signalements</th>
+            <th>Photo</th>
+            <!-- <th>CSS grade</th> -->
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+        <tfoot>
+          <tr>
+            <!-- champs de recherche colonne par colonne -->
+            <th><input type="text" name="search_gid" value="Rech. Gid" class="search_init" /></th>
+            <th><input type="text" name="search_Etat" value="Rech. Etat" class="search_init" /></th>
+            <th><input type="text" name="search_type" value="Rech. Type" class="search_init" /></th>
+            <!-- malgré la concaténation du nom et du prénom, on ne peut rechercher que le nom dans ce champs -->
+            <th><input type="text" name="search_responsable" value="Rech. Resp" class="search_init" /></th>
+            <th><input type="text" name="search_zone" value="Rech. Zone" class="search_init" /></th>
+            <th><input type="text" name="search_adresse" value="Rech. Adr" class="search_init" /></th>
+            <th></th>
+            <th></th>
+            <!-- <th>Gid</th>
+            <th>Etat</th>
+            <th>Type</th>
+            <th>Responsable</th>
+            <th>Zone</th>
+            <th>Adresse</th>
+            <th>Nb signalements</th>
+            <th>Photo</th> -->
+            <!-- <th>CSS grade</th> -->
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  </tr>
+            </table>
+        </form>
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <style type="text/css">
+      @import "DataTables/DataTables-1.9.4/examples/examples_support/syntax/css/shCore.css";
+    </style>
+    <script type="text/javascript" language="javascript" src="DataTables/DataTables-1.9.4/examples/examples_support/syntax/js/shCore.js"></script>
+  </div>
+
+  <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <!-- <script src="../assets/js/jquery.js"></script> -->
+    <script src="../assets/js/bootstrap-transition.js"></script>
+    <script src="../assets/js/bootstrap-alert.js"></script>
+    <script src="../assets/js/bootstrap-modal.js"></script>
+    <script src="../assets/js/bootstrap-dropdown.js"></script>
+    <script src="../assets/js/bootstrap-scrollspy.js"></script>
+    <script src="../assets/js/bootstrap-tab.js"></script>
+    <script src="../assets/js/bootstrap-tooltip.js"></script>
+    <script src="../assets/js/bootstrap-popover.js"></script>
+    <script src="../assets/js/bootstrap-button.js"></script>
+    <script src="../assets/js/bootstrap-collapse.js"></script>
+    <script src="../assets/js/bootstrap-carousel.js"></script>
+    <script src="../assets/js/bootstrap-typeahead.js"></script>
+</body>
+</html>

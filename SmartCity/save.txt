@@ -1,0 +1,102 @@
+    1  exit
+    2  cd esprit/LeafLetNodejsBDD/
+    3  ls
+    4  cd upload
+    5  cd ../uploads
+    6  ls
+    7  ls -l
+    8  cd ..
+    9  nodemon upload.js 
+   10  curl -GET http://localhost:8000
+   11  curl -GET http://localhost:8000
+   12  cd simple-file-uploader-master/uploads/
+   13  ls
+   14  cat README.md 
+   15   
+   16  clear
+   17  ls
+   18  ls -l
+   19  cd
+   20  cd esprit/LeafLetNodejsBDD/uploads
+   21  ls
+   22  ls -a
+   23  ls -a
+   24  ls
+   25  ls
+   26  ls
+   27  ls
+   28  ls
+   29  rm *
+   30  ls
+   31  ls
+   32  ls -l OpenJUMP-Installer-1.6.3-r3576-PLUS.jar 
+   33  ifconfig
+   34  cd esprit/LeafLetNodejsBDD/
+   35  ls
+   36  cd
+   37  pwd
+   38  ls
+   39  cd esprit/LeafLetNodejsBDD/
+   40  nodemon upload.js 
+   41  ls
+   42  nodemon upload.js
+   43  nodemon upload4.js 
+   44  cd simple-file-uploader-master/
+   45  nodemon
+   46  nodemon index.js 
+   47  nodemon ../upload.js 
+   48  cd ..
+   49  cat upload.js
+   50  nodemon upload.js
+   51  cd esprit/LeafLetNodejsBDD/
+   52  nodemon index.js 
+   53  ls
+   54  nodemon index.js 
+   55  npm install nodemon
+   56  apt-get install -npm
+   57  apt-get install npm
+   58  npm install -g nodemon
+   59  nodemon index.js 
+   60  node index.js 
+   61  ls /opt/node-v0.10.15-linux-x64/
+   62  ls /opt/node-v0.10.15-linux-x64/bin/
+   63  vim /root/.bashrc
+   64  ls
+   65  echo $PATH 
+   66  vim /root/.bashrc
+   67  source ~/.bashrc 
+   68  npm
+   69  vim /etc/profile
+   70  npm update
+   71  nodemon 
+   72  npm install nodemon -g
+   73  nodemon 
+   74  ls
+   75  nodemon 
+   76  node
+   77  node index.js 
+   78  apt-get remove node
+   79  apt-get remove nodemon
+   80  cd /
+   81  ls
+   82  cd root/esprit/LeafLetNodejsBDD/
+   83  nodemon upload.js
+   84  node upload.js
+   85  node upload.js
+   86  cat upload.js
+   87  node upload.js
+   88  node index.js 
+   89  npm remove pg
+   90  node index.js 
+   91  npm install pg
+   92  sudo apt-get purge nodejs nodejs-dev npm 
+   93  npm install pg
+   94  sudo apt-get install build-essential 
+   95  npm install pg
+   96  sudo apt-get install postgresql-server-dev-9.1 
+   97  npm install pg
+   98  node index.js 
+   99  nodemon index.js 
+  100  nodemon index.js 
+  101  nodemon index.js 
+  102  history > save.txt

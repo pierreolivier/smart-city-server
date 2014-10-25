@@ -1,0 +1,396 @@
+var map;
+	var ajaxRequest;
+	var ajaxRequest2;
+	var ajaxRequest3;
+	var plotlist;
+	var plotlayers=[];
+	var infos;
+	var datDebDef = '1900-1-1';
+	var today = new Date();
+	var year = today.getFullYear();
+	var month = today.getMonth() + 1;
+	var day = today.getDate();
+	var datFinDef = ""+year+"-"+month+"-"+day;
+	var port = 8887;
+	// permet de lister l'ensemble du personnel disponible
+	function getPersonnel(){
+		ajaxRequest2=GetXmlHttpObject();
+		if (ajaxRequest2===null) {
+			alert("This browser does not support HTTP Request");
+			return;
+		}
+		ajaxRequest2.onreadystatechange = demandePersonnel;
+		ajaxRequest2.open('GET','http://localhost:'+port+'/getPerso?id=0', true);
+		ajaxRequest2.send(null); 
+	}
+
+	// permet de lister des taches en cours ou à traiter
+	function getListeTaches(){
+		ajaxRequest3=GetXmlHttpObject();
+		if (ajaxRequest3===null) {
+			alert("This browser does not support HTTP Request");
+			return;
+		}
+		ajaxRequest3.onreadystatechange = demandeListeTaches;
+		ajaxRequest3.open('GET','http://localhost:'+port+'/getTaches', true);
+		ajaxRequest3.send(null); 
+	}
+
+	// première fonction appelée
+	function initmap(){
+		
+		// set up the AJAX stuff
+		ajaxRequest=GetXmlHttpObject();
+		if (ajaxRequest===null) {
+			alert("This browser does not support HTTP Request");
+			return;
+		}
+
+		// set up the map
+		var crs = L.CRS.EPSG4326;
+		map = new L.Map('map',{});
+
+		var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+		var osm = new L.TileLayer(osmUrl, {minZoom: 0});		
+
+		map.setView(new L.LatLng(51.3, 0.7),5);
+		map.addLayer(osm);
+		askForPlots();
+		getPersonnel();
+		getListeTaches();
+		map.on('moveend', onMapMove);
+
+		//lors d'un clic sur un marker, les détails sont affichés en dessous
+		// Dans la liste des tâches, il n'y n'a plus de tache sélectionnée
+		map.on('popupopen', function (e) {
+		    afficherTache(e.popup._source._myId);
+		});
+
+
+		//  var url = new L.TileLayer.WMS("http://localhost/mapcache/", 
+  //   	{
+		// 	layers: 'test',
+  //   		format: 'image/png',
+  //   		transparent: true,
+  //   		attribution: "image vide",
+  //      	 	noWrap: true
+  //  	});
+		// map.addLayer(url);
+
+		// var wgs84 = 'http://localhost/mapcache/tms/1.0.0/test@google/{z}/{x}/{y}.png';
+		// var tms = new L.TileLayer(wgs84, { scheme: 'tms', noWrap: true, continuousWorld: false, reuseTiles: true});
+
+		// map.addLayer(tms);
+		var overlays = {
+        	"osm" : osm
+    	};
+
+   		layersControl = new L.Control.Layers(overlays);
+    	map.addControl(layersControl);
+    	
+    
+
+	}
+
+	function askForPlots() {
+		
+		// request the marker info with AJAX for the current bounds
+		var bounds = map.getBounds();
+		var minll = bounds.getSouthWest();
+		var maxll = bounds.getNorthEast();
+		var etat = 000;
+		
+		//il y a un soucis avec les 2 lignes suivantes lors d'un second passage
+		//var datedeb = document.form1.year1.options[document.form1.year1.selectedIndex].value+"-"+document.form1.month1.options[document.form1.month1.selectedIndex].value+"-"+document.form1.day1.options[document.form1.day1.selectedIndex].value;
+		//var datefin = document.form1.year2.options[document.form1.year2.selectedIndex].value+"-"+document.form1.month2.options[document.form1.month2.selectedIndex].value+"-"+document.form1.day2.options[document.form1.day2.selectedIndex].value;
+
+		//Chaque configuration d'affichage sera entre 000 et 111, les choses à faire sont de la forme 001, en cours 010, traitées 100, L'affichage de deux ou 3 paramètres en même temps sera géré comme des bits à 1 ou 0 pour signifier ou non leur affichage
+		if ($('#todo').is(':checked')){
+			etat += 1;
+      	}
+      	
+      	if ($('#inprogress').is(':checked')){
+			etat += 10;
+      	}
+
+      	if ($('#done').is(':checked')){
+			etat += 100
+      	}
+      	// convertion en string, nécessaire pour étate suivante
+      	etat = etat.toString();
+      	// convertion en string sous la forme de 3 bits
+      	while (etat.length < 3){
+      		etat = "0"+etat;
+      	}
+
+      	//lorsque l'état de la demande est modifié, la fonction stateChanged est appelée
+		ajaxRequest.onreadystatechange = stateChanged;
+		try {
+			ajaxRequest.open('GET','http://localhost:'+port+'/maj?minlng='+minll.lng+'&minlat='+minll.lat+'&maxlng='+maxll.lng+'&maxlat='+maxll.lat+'&etat='+etat, true);
+		}
+		catch (error){
+			ajaxRequest.open('GET','http://localhost:8887/maj?minlng='+minll.lng+'&minlat='+minll.lat+'&maxlng='+maxll.lng+'&maxlat='+maxll.lat+'&dd='+datDebDef+'&df='+datFinDef, true);
+		}
+		ajaxRequest.send(null); 
+		etat=0;
+	}
+
+	function onMapMove(e) { 
+		askForPlots(); 
+	}
+
+	function onMarkerClick(e){
+		alert(e.latlng.toString());
+	}
+
+	function GetXmlHttpObject() {
+		if (window.XMLHttpRequest) { return new XMLHttpRequest(); }
+		if (window.ActiveXObject)  { return new ActiveXObject("Microsoft.XMLHTTP"); }
+		return null;
+	}
+
+	//fonction appelée pour l'affichage des points (déplacement ou filtrage)
+	function stateChanged() {
+		
+		// si la requête est terminée
+		if (ajaxRequest.readyState===4) {
+
+			// si la requête s'est bien déroulée
+			if (ajaxRequest.status===200) {
+				try 
+				{	
+					//si le parse échoue c'est qu'il n'y a aucun résultat
+					plotlist=JSON.parse(ajaxRequest.responseText);
+					removeMarkers();
+					for (var i=0, len = plotlist.length;i<len;i++){ 
+						var plotll = new L.LatLng(plotlist[i].lat,plotlist[i].lon, true);
+						var plotmark = new L.Marker(plotll);
+						plotmark.data=plotlist[i];
+						plotmark._myId =plotlist[i].gid;
+						map.addLayer(plotmark);
+						//plotmark.bindPopup("<h3>"+plotlist[i].name+"</h3><h3>"+plotlist[i].date+"</h3>");
+						plotmark.bindPopup("<h3>"+plotlist[i].gid+"</h3>");
+						plotlayers.push(plotmark);
+					}
+				}
+				
+				catch (error){
+					removeMarkers();
+				}	
+			}
+		}
+	}
+
+	function removeMarkers() {
+		for (var i=0;i<plotlayers.length;i++) {
+			map.removeLayer(plotlayers[i]);
+		}
+		plotlayers=[];
+	}
+
+	/* Permet d'afficher les pièces jointes dans une nouvelle fenêtre */
+	function PopupWindow(source, strWindowToOpen){
+		var strWindowFeatures = "toolbar=no,resize=no,titlebar=no,";
+		strWindowFeatures = strWindowFeatures + "menubar=no,width=413,height=299,maximize=null";
+		window.open(strWindowToOpen, '', strWindowFeatures); 
+	} 
+
+	/* Permet d'affecter une tache à une personne, une connexion à la BDD pourra être faite,
+	met à jour l'état de la tache
+	*/
+	function affecter(){
+		var per = document.form1.personne.options[document.form1.personne.selectedIndex];
+		var tache = document.form1.taches.options[document.form1.taches.selectedIndex].value;
+		var r=confirm('Voulez vous vraiment affecter '+per.text+' à la tache '+ tache +'?');
+		if (r===true){
+			ajaxRequest2.onreadystatechange = confirmUpdateAffectation(tache);//refresh des infos de la taches à faire
+			ajaxRequest2.open('GET','http://localhost:'+port+'/affecter?per='+per.value+'&tache='+tache, false);
+			ajaxRequest2.send(null);
+			afficherTache(tache);
+		}
+		else
+		  	alert("Affectation annulée");
+
+	}
+
+	function confirmUpdateAffectation(tache){
+		
+		// si la requête est terminée
+		if (ajaxRequest2.readyState===4) {
+
+			// si la requête s'est bien déroulée
+			if (ajaxRequest2.status===200) {
+				try 
+				{	
+					alert('Affectation réussie');
+				}
+				catch(error)
+				{
+					alert('error');
+				}
+			}
+		}		 
+	}
+
+	// Entre 2 affichages, remet à 0 les infos 
+	function removeInfos(){
+		document.getElementById("photo").innerHTML ="";
+		document.getElementById("video").innerHTML ="";
+		document.getElementById("son").innerHTML ="";
+	}
+
+	//Permet de donner un lien pour chaque photo
+	function listePhotos(photos){
+		var index = 0;
+		var png;
+		var str;
+		if (photos.lastIndexOf(",")>0)
+		{
+			index = photos.lastIndexOf(",");		
+			png = photos.substring(index+1,photos.length);
+			str = photos.substring(0,index); 
+			listePhotos(str);
+		}
+		else{
+			png = photos.substring(0,photos.length);
+		}
+		document.getElementById("photo").innerHTML += "<a href='javascript:PopupWindow(this,"+'"'+"http://localhost/media/"+png+'"'+")"+"'"+"><img src='http://localhost/media/apn.png'  height='50' weight='50' style='cursor: pointer;'/></a>";
+	}
+
+	// Affiche tous les détails d'une tache
+	function demandeInfos() {
+
+		// si la requête est terminée
+		if (ajaxRequest.readyState===4) {
+
+			// si la requête s'est bien déroulée
+			if (ajaxRequest.status===200) {
+				try 
+				{	
+					//si eval échoue c'est qu'il n'y a aucun résultat
+					infos=JSON.parse(ajaxRequest.responseText);
+					removeInfos();
+					document.getElementById("numDeclaration").innerHTML = "<p>Numéro Déclaration: "+infos.gid+"</p>";
+					document.getElementById("persAffectee").innerHTML = "<p>Personne affectée: "+infos.persaffectee+"</p>";
+					document.getElementById("date").innerHTML = "<p>Date: "+infos.date+"</p>";
+					document.getElementById("nature").innerHTML = "<p>Type: "+infos.type+"</p>";
+					var state;
+					if (infos.etat == '001'){
+						state = "Nouvelle";
+					}
+					else if(infos.etat == '010'){
+						state = "En cours";
+					}
+					else
+						state = "Terminée";
+					document.getElementById("etat").innerHTML = "<p>Etat d'avancement: "+state+"</p>";
+					document.getElementById("descriptif").innerHTML = "<p>"+infos.texte+"</p>";
+
+					// on ne peut mettre qu'un seul son et vidéo
+					if (infos.video !== 'null'){
+					document.getElementById("video").innerHTML = "<a href='javascript:PopupWindow(this,"+'"'+"http://localhost/media/"+infos.video+'"'+")"+"'"+"><img src='http://localhost/media/logo.png'  height='50' weight='50' style='cursor: pointer;'/></a>";
+					}
+					if (infos.son !== 'null'){
+					document.getElementById("son").innerHTML = "<a href='javascript:PopupWindow(this,"+'"'+"http://localhost/media/"+infos.son+'"'+")"+"'"+"><img src='http://localhost/media/son.jpg'  height='50' weight='50' style='cursor: pointer;'/></a>";
+					}
+					//traitement pour les photos
+					//if (infos.photo !== 'null'){
+						//listePhotos(infos.photo);
+					//}	
+				}
+				
+				catch (error){
+					alert('erreur');
+				}
+			}
+		}
+	}
+
+	//Récupère la valeur de la liste déroulante
+	function recup(){
+    	var a =  document.getElementById('personne').options[document.getElementById('personne').selectedIndex].value
+    	alert(a);
+    }
+
+	function demandePersonnel() {
+
+		// si la requête est terminée
+		if (ajaxRequest2.readyState===4) {
+
+			// si la requête s'est bien déroulée
+			if (ajaxRequest2.status===200) {
+				try 
+				{	
+					//si eval échoue c'est qu'il n'y a aucun résultat
+					var perso=JSON.parse(ajaxRequest2.responseText);
+					var selectElement = document.createElement('select');
+					selectElement.setAttribute('name','personne');
+					selectElement.setAttribute('id','personne');		
+					var formPerso =document.form1.taches;			
+
+					for (var i=0, len = perso.length;i<len;i++){ 
+						var element = document.createElement("option");
+	                    element.setAttribute('value', perso[i].idpers);
+	                    element.text = perso[i].prenom+" "+perso[i].nom;
+			            selectElement.appendChild(element);	
+					}
+					document.getElementById("listePersonnel").appendChild(selectElement);					
+				}
+				
+				catch (error){
+					alert('erreur');
+				}
+			}
+		}
+	}
+
+	function demandeListeTaches() {
+
+		// si la requête est terminée
+		if (ajaxRequest3.readyState===4) {
+
+			// si la requête s'est bien déroulée
+			if (ajaxRequest3.status===200) {
+				try 
+				{	
+					//si eval échoue c'est qu'il n'y a aucun résultat
+					var taches=JSON.parse(ajaxRequest3.responseText);
+					var selectElement = document.createElement('select');
+					selectElement.setAttribute('name','taches');
+					selectElement.setAttribute('id','taches');		
+					var formTaches =document.form1.taches;			
+					selectElement.setAttribute('onchange', 'afficherTache(document.form1.taches.options[document.form1.taches.selectedIndex].value)');
+
+					for (var i=0, len = taches.length;i<len;i++){
+						var element = document.createElement("option");
+	                    element.setAttribute('value', taches[i].gid);
+	                    element.text = taches[i].gid;
+			            selectElement.appendChild(element);		
+					}
+					document.getElementById("listeTaches").appendChild(selectElement);
+					// nécessaire pour afficher une tache lors du lancement de la page
+					afficherTache(document.form1.taches.options[document.form1.taches.selectedIndex].value);			
+				}
+				
+				catch (error){
+					alert('erreur taches');
+				}
+			}
+		}
+	}
+
+	/* Appelée lorsqu'une tache est sélectionné sur le grahique ou alors dans la liste
+	   la tache sélectionnée sera affichée dans le cadre en bas à gauche
+	*/
+	function afficherTache(gid){
+
+		ajaxRequest.onreadystatechange = demandeInfos;
+		ajaxRequest.open('GET','http://localhost:'+port+'/getData?gid='+gid, false);
+		ajaxRequest.send(null); 
+	}
+
+	/* Permet de d'afficher ou non les declarations à traiter sur la carte 
+	function atraiter(){
+		alert($('#todo').is(':checked'));
+	}
+	*/

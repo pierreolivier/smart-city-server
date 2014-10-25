@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+		<script src="http://crypto-js.googlecode.com/svn/tags/3.1.2/build/rollups/md5.js"></script>
+		<script src="./js/md5.js"></script>
+		<title>Réinitialisation mot de passe</title>
+		<meta charset="utf-8" />
+		<script type="text/javascript">
+		 var port = 80;
+		 var aj=GetXmlHttpObject();
+			function GetXmlHttpObject() {
+				if (window.XMLHttpRequest) { return new XMLHttpRequest(); }
+				if (window.ActiveXObject)  { return new ActiveXObject("Microsoft.XMLHTTP"); }
+				return null;
+			}
+
+			$(document).ready(function() {
+		    	$('#validate').click(function(e){
+				    e.preventDefault();
+		    		//var hash = CryptoJS.MD5(document.form.mdp1.value);
+		    		var hash = CryptoJS.MD5(document.form.login.value + ":" + "realm" + ":" + document.form.mdp1.value);
+				    //si les 2 mots de passe sont =, on teste l'existance du login
+				    if (checkMDP()){
+				    	checkLogin(hash);
+				    	//alert("Mot de passe reinitialisé");
+				    }
+				    else{
+				    	alert("Mots de passe différents");
+				    }
+		  		});
+			});
+
+			//vérification que les 2 mots de passe sont les mêmes
+			function checkMDP(){
+				if(document.form.mdp1.value === document.form.mdp2.value)
+					return true;
+				else 
+					return false;
+			}
+
+			//vérification de l'existence du login
+			function checkLogin(hash){
+				if (aj===null) {
+					alert("This browser does not support HTTP Request");
+					return;
+				}
+				aj.onreadystatechange = resultEmail;
+				aj.open('GET',"http://10.24.192.110:"+port+"/resetPassword?login="+document.form.login.value+"&mdp="+hash, true);
+				aj.send(null);
+			}
+
+			//Si login trouvé, alors envoi de mail, sinon message
+			function resultEmail(){
+				// si la requête est terminée
+				if (aj.readyState===4) {
+
+					// si la requête s'est bien déroulée
+					if (aj.status===200) {
+						try 
+						{	
+							//si le parse échoue c'est qu'il n'y a aucun résultat
+							res=JSON.parse(aj.responseText);
+							if (res.email === "null"){
+								alert("Identifiant introuvable");
+							}
+							else{
+								alert("Un email a été envoyé à votre adresse");
+							}
+						}
+						catch (error){
+							alert("erreur: "+ error);
+						}	
+					}
+				}
+			}
+		</script>
+	</head>
+	<body>
+		<h3>Réinitialisation de votre mot de passe</h3>
+		<form name="form">
+			<fieldset>
+				<legend>Merci de renseigner les champs suivants:</legend>
+				<div id="login" name="login">
+					Identifiant: <input  name ="login" type="text"/>
+				</div>
+				<div id="mdp1" name="mdp1">
+					Nouveau mot de passe: <input name ="mdp1" type="password" />
+				</div>
+				<div id="mdp2" name="mdp2">
+					Confirmation du mot de passe: <input  name ="mdp2" type="password" />
+				</div>
+				<div id="validate" name="validate">
+					<input type="button" value="Envoyer">
+				</div>
+			</fieldset>
+		</form>
+	</body>
+</html>
