@@ -11,7 +11,7 @@ var map,
 	datFinDef = ""+year+"-"+month+"-"+day,
 	port = 81,
 	domain = 'pierreolivier.me'
-	//domain = 'localhost',
+	//domain = '127.0.0.1',
 	// domain = '10.24.192.110',
 	gidCourant,
 	leafletId = -1,
