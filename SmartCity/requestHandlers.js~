@@ -14,23 +14,14 @@ var fs = require('fs'),
 	program = require('commander'),
 	md5 = require('MD5'),
 	io = require('socket.io-client'),
-	multipart = require("./node_modules/multipart/lib/multipart.js"),
-	//jade = require('jade');
+	multipart = require('multipart'),
 	infos_login = {},
-	//infos_login = [],
+	user_db = 'eric'
 	port = 81,
-	//domain = '10.24.192.110',
-	domain = '127.0.0.1'
+	//domain = '127.0.0.1'
+	domain = 'pierreolivier.me'
 	QueryBuilder = require('datatable'),
-	//Sequelize = require('sequelize-postgres').sequelize,
-	//postgres  = require('sequelize-postgres').postgres;
 
-// function jadeTest(){
-// 	var options = { pretty: true, locals: {} };
-// 	jade.renderFile(__dirname + '/jade/home.jade', options, function (err, html) {
-//     	console.log(html);
-// 	});
-// }
 
 //Fonction interne: A partir de la reqête du client, on détermine son login
 function getLogin(request){
@@ -47,7 +38,7 @@ function getLogin(request){
 
 //Fonction externe: renvoi au client son login
 function getLog(response, request){
-	response.end(getLogin(request));
+	//response.end(getLogin(request));
 }
 
 
@@ -56,52 +47,23 @@ function maj(response, request){
 	//console.log("Le gestionnaire 'maj' est appelé.");
 	var url_parts = url.parse(request.url, true),
     	query = url_parts.query,		
-		con ="postgres://eric:cire@"+domain+":5432/gis",
+		con ="postgres://eric:cire@localhost:5432/postgres",
 		rows = [],
 		myArray = [],
 		client = new pg.Client(con),
 		bool = false;
 	client.connect();
 
-	// if (query.login && query.mdp ) {
-	// 	console.log("mes déclarations");
-	// 	bool = true;
-	// 	req = "SELECT longitude, latitude, gid, etat from declaration d, citoyens c WHERE longitude BETWEEN "+query.minlng+" AND "+query.maxlng+" AND latitude BETWEEN "+query.minlat+" AND "+query.maxlat+" AND etat & B'"+query.etat+"'=etat AND login='"+query.login+"' AND mdp='"+query.mdp+"' AND d.idcitoyen = c.id_citoyen";
-	// }
-	//login = getLogin(request);
-
-
-	//moyen très mauvais de détecter l'utilisation de services via l'application
-	if (query.app){
-		bool = true;
-		console.log("application");
-		req = "SELECT longitude, latitude, gid, etat from declaration WHERE longitude BETWEEN "+query.minlng+" AND "+query.maxlng+" AND latitude BETWEEN "+query.minlat+" AND "+query.maxlat+" AND etat & B'"+query.etat+"'=etat";
-	}
-	//si infos_login[login] == 2, alors on est admin, et on accès à toutes les données de sa ville!!!!!!!!!
-	//pour l'instant un admin a acces à l'ensemble des données de la BDD => rajouter idville pour chaque déclaration
-	else if (infos_login[getLogin(request)+'.role'] == 'admin' ){
-				bool = true;
-		console.log("admin");
-		req = "SELECT * from declaration d, incidents i, personnel p WHERE d.longitude BETWEEN "+query.minlng+" AND "+query.maxlng+" AND d.latitude BETWEEN "+query.minlat+" AND "+query.maxlat+" AND d.etat & B'"+query.etat+"'=d.etat AND i.id_type = d.type AND d.id_ville = p.idville and p.login ='"+getLogin(request)+"' AND p.role = 'admin'";
-	}
-	else if (infos_login[getLogin(request)+'.id'] !== undefined ){
-		bool = true;
-		console.log("portail");
-		req = "SELECT * from declaration d, incidents i WHERE d.longitude BETWEEN "+query.minlng+" AND "+query.maxlng+" AND d.latitude BETWEEN "+query.minlat+" AND "+query.maxlat+" AND d.etat & B'"+query.etat+"'=d.etat AND i.id_type = d.type AND persaffectee="+infos_login[getLogin(request)+'.id'];
-
-	}
+	req = "SELECT * from declaration d, incidents i, personnel p WHERE d.longitude BETWEEN "+query.minlng+" AND "+query.maxlng+" AND d.latitude BETWEEN "+query.minlat+" AND "+query.maxlat+" AND d.etat & B'"+query.etat+"'=d.etat AND i.id_type = d.type";
 		
-	//demande des éléments compris dans la zone de l'objet
-	//req = "SELECT ST_X(the_geom), ST_Y(the_geom), name, date from pop_pts WHERE ST_MakeEnvelope("+query.minlng+","+query.minlat+","+query.maxlng+","+query.maxlat+",4326) && the_geom AND date > DATE "+"'"+query.dd+"'"+ " AND date < DATE "+"'"+query.df+"'";
-	//req = "SELECT ST_X(the_geom), ST_Y(the_geom), gid, etat from declaration WHERE ST_MakeEnvelope("+query.minlng+","+query.minlat+","+query.maxlng+","+query.maxlat+",4326) && the_geom AND etat & B'"+query.etat+"'=etat";
-		console.log(req);  
+	console.log(req);  
 		var query = client.query(req);
 
 		//exécution de la requête 
 		query.on('row', function(row, result) {
 				rows.push(row);
 				result.addRow(row);
-		    	//console.log(row);	
+		    	console.log(row);	
 		});
 
 		//traitement des résultats 
@@ -132,7 +94,7 @@ function maj(response, request){
 //permet de changer l'état d'un incident via le tableau
 function setEtat(response, gid, value){
 	console.log("setEtat");
-	var con ="postgres://eric:cire@"+domain+":5432/gis";
+	var con ="postgres://"+user_db+":cire@"+domain+":5432/postgres";
 	var client = new pg.Client(con);
 	client.connect();
 	var DATE = new Date(),
@@ -174,7 +136,7 @@ function setEtat(response, gid, value){
 }
 ////////////////// il faut récupérer le login avant, version sans utilisation du portail
 function setState(response, request){
-	var con ="postgres://eric:cire@"+domain+":5432/gis",
+	var con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		client = new pg.Client(con),
 		data = "",
 		DATE = new Date(),
@@ -224,7 +186,7 @@ function setState(response, request){
 
 // A partir du login, récupère l'identifiant d'agent associé
 function getInfosLogin(login, response){
-  	var con ="postgres://eric:cire@"+domain+":5432/gis";
+  	var con ="postgres://"+user_db+":cire@"+domain+":5432/postgres";
 	var client = new pg.Client(con);
 	var rows = [];
 	client.connect();
@@ -259,7 +221,7 @@ function getInfosLogin(login, response){
 
 /* fonction à appeler pour afficher la page associée à la ville du login */
 function start(response, request){
-	affichagePageVille('Nantes',response);
+	affichagePageVille('Lux',response);
   	//var login = getLogin(request);
   	//getInfosLogin(login, response);		
   	//getInfosLogin(getLogin(request), response);	
@@ -343,7 +305,7 @@ function getData(response, request){
 		//console.log("Le gestionnaire 'getData' est appelé.");
 		var url_parts = url.parse(request.url, true),
 	         query_from_url = url_parts.query,
-			 con ="postgres://eric:cire@"+domain+":5432/gis",
+			 con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 			 rows = [],
 			 text = new String(),
 			 client = new pg.Client(con),
@@ -438,7 +400,7 @@ function getPerso(response, request){
 		var url_parts = url.parse(request.url, true);
 	    var query = url_parts.query;
 		
-		var con ="postgres://eric:cire@"+domain+":5432/gis";
+		var con ="postgres://"+user_db+":cire@"+domain+":5432/postgres";
 		var rows = [];
 		var myArray = [];
 		var client = new pg.Client(con);
@@ -487,7 +449,7 @@ function getTaches(response, request){
 		//console.log("Le gestionnaire 'getTaches' est appelé.");
 		var url_parts = url.parse(request.url, true),
 	    	query = url_parts.query,
-			con ="postgres://eric:cire@"+domain+":5432/gis",
+			con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 			rows = [],
 			myArray =[],
 			client = new pg.Client(con),
@@ -542,7 +504,7 @@ function getTaches(response, request){
 
 // en cas de mauvaise affectation, permet d'affecter une déclaration à quelqu'un d'autre
 function affecter(response, gid, pers){
-	var	con ="postgres://eric:cire@"+domain+":5432/gis",
+	var	con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		client = new pg.Client(con);
 	client.connect();
 	
@@ -564,7 +526,7 @@ function affecter(response, gid, pers){
 function setResp(response, request){
 	var url_parts = url.parse(request.url, true),
     	query = url_parts.query,
-		con ="postgres://eric:cire@"+domain+":5432/gis",
+		con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		client = new pg.Client(con);
 		login = getLogin(request);
 	client.connect();
@@ -588,7 +550,7 @@ function setResp(response, request){
 //ici aussi il faut vérifier les infos du login
 // en cas de mauvaise choix du type, permet de le modifier
 function setType(response, gid, type){
-	var	con ="postgres://eric:cire@"+domain+":5432/gis",
+	var	con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		client = new pg.Client(con);
 	client.connect();
 	
@@ -610,7 +572,7 @@ function logina(response, request){
 	console.log("Le gestionnaire 'login' est appelé.");
 	var url_parts = url.parse(request.url, true),
     	query = url_parts.query,
-		con ="postgres://eric:cire@"+domain+":5432/gis",
+		con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		client = new pg.Client(con),
 		myArray =[];
 	client.connect();
@@ -646,9 +608,6 @@ function logina(response, request){
 	  		}
 	        myArray.join(',');
 		  	client.end();
-	  		//window.location.replace('http://"+domain+":8887/')
-	  		//var rs = fs.createReadStream('./leaflet.html');
-        	//util.pump(rs);
         	response.writeHead(200, {"Content-Type": "application/json", 'Access-Control-Allow-Origin': '*',
          'Access-Control-Allow-Credentials': 'true'})
 		  	response.end(JSON.stringify(myArray),'utf-8');
@@ -662,7 +621,7 @@ function supprDec(response, request){
 	console.log("Le gestionnaire 'supprDec' est appelé.");
 	var url_parts = url.parse(request.url, true),
     	query = url_parts.query,
-		con ="postgres://eric:cire@"+domain+":5432/gis",
+		con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		rows = [],
 		client = new pg.Client(con),
 		login = getLogin(request);
@@ -708,7 +667,7 @@ function getStat(response, request){
 	console.log("Le gestionnaire 'getStat' est appelé.");
 	var url_parts = url.parse(request.url, true),
     	query = url_parts.query,
-		con ="postgres://eric:cire@"+domain+":5432/gis",
+		con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		rows = [],
 		myArray = [],
 		client = new pg.Client(con);
@@ -818,8 +777,8 @@ function resetPassword(response, request){
 
 	var email 	= require("./node_modules/emailjs/email");
 	var server 	= email.server.connect({
-	   user:	"capgemini.eric", 
-	   password:"MotDePasseDeTest", 
+	   user:	""+user_db+"", 
+	   password:"", 
 	   host:	"smtp.gmail.com", 
 	   ssl:		true
 	});
@@ -827,7 +786,7 @@ function resetPassword(response, request){
 	console.log("Le gestionnaire 'resetPassword' est appelé.");
 	var url_parts = url.parse(request.url, true),
     	query = url_parts.query,
-		con ="postgres://eric:cire@"+domain+":5432/gis",
+		con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		rows = [],
 		client = new pg.Client(con);
 	client.connect();
@@ -866,7 +825,7 @@ function resetPassword(response, request){
 	  		response.end(JSON.stringify({"email": "notnull"}));
 	  		var message	= {
 			   text:	"i hope this works", 
-			   from:	"Capgemini", 
+			   from:	"", 
 			   to:		"<"+rows[0].courriel+">",
 			   cc:		"",
 			   subject:	"Réinitialisation de mot de passe",
@@ -997,7 +956,7 @@ function upload_complete(res,gid,ext,name) {
 	console.log("upload_complete!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 	if (is_num(parseInt(gid))){
 
-		var con ="postgres://eric:cire@"+domain+":5432/gis",
+		var con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 			rows =[];
 			myArray = [],
 			req = "",
@@ -1005,15 +964,6 @@ function upload_complete(res,gid,ext,name) {
 			client = new pg.Client(con);
 		client.connect();
 		console.log(ext);
-		/*if (ext === 'png' || ext === 'jpg'){
-			req ="INSERT INTO \"public\".\"photos\" (\"idphoto\",\"iddeclaration\",\"nom\") VALUES ("+val+",'"+gid+"','"+name+"')";
-		}
-		else if (ext === 'mp4' || ext === 'mov'){
-			req ="UPDATE \"public\".\"declaration\" SET video='"+name+"' WHERE gid="+gid;
-		}
-		else if (ext === 'mp3' || ext === 'wav' || ext === 'm4a' || ext === '3gpp'){
-			req ="UPDATE \"public\".\"declaration\" SET son='"+name+"' WHERE gid="+gid;
-		}*/
 		if (ext === 'png' || ext === 'jpg'){
 			req ="UPDATE \"public\".\"declaration\" SET photo='"+name+"' WHERE gid="+gid;
 		}
@@ -1045,7 +995,7 @@ function createDec(response, request){
 	console.log("Le gestionnaire 'createDec' est appelé.");
 	var url_parts = url.parse(request.url, true),
          query_from_url = url_parts.query,
-		 con ="postgres://eric:cire@"+domain+":5432/gis",
+		 con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		 rows1 =[],
 		 rows2 = [],
 		 rows3 = [],
@@ -1181,7 +1131,7 @@ function getListIncidentsVille(response, request){
 	//select i.nom from traitement_incidents t, ville v, incidents i where v.idville = 1 AND v.idville = t.id_ville and t.id_incident = i.id_type
 	var url_parts = url.parse(request.url, true),
          query = url_parts.query,
-		 con ="postgres://eric:cire@"+domain+":5432/gis",
+		 con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		 rows1 =[],
 		 myArray = [],
 		 client1 = new pg.Client(con);
@@ -1258,7 +1208,7 @@ function getListIncidentsVille(response, request){
 function plusOneDec(response, request){
 	var url_parts = url.parse(request.url, true),
          query = url_parts.query,
-		 con ="postgres://eric:cire@"+domain+":5432/gis",
+		 con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		 rows =[],
 		 myArray = [],
 		 client = new pg.Client(con);
@@ -1312,7 +1262,7 @@ function plusOneDec(response, request){
 function createCitoyen(response, request){
 	var url_parts = url.parse(request.url, true),
         query = url_parts.query,
-		con ="postgres://eric:cire@"+domain+":5432/gis",
+		con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		rows =[],
 		client = new pg.Client(con);
 	client.connect();
@@ -1372,7 +1322,7 @@ function getMesDeclarations(response, request){
 		query = url_parts.query,
 		text = String("["),
 		rows = [],
-		con ="postgres://eric:cire@"+domain+":5432/gis",
+		con ="postgres://"+user_db+":cire@"+domain+":5432/postgres",
 		client = new pg.Client(con);
 	client.connect();	
 
@@ -1562,7 +1512,7 @@ function getDataTable(response, request){
 		console.log(SearchArray[0]);
 		var queries = queryBuilder.buildQuery( oDatatableParams);
 
-		var sequelize = new Sequelize('gis', 'eric', 'cire', {
+		var sequelize = new Sequelize('postgres', '"+user_db+"', 'cire', {
 		       dialect: 'postgres',
 		       port: 5432,
 		       pool: { maxConnections: 5, maxIdleTime: 30}

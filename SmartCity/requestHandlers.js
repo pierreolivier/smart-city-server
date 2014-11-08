@@ -47,7 +47,7 @@ function maj(response, request){
 	//console.log("Le gestionnaire 'maj' est appelé.");
 	var url_parts = url.parse(request.url, true),
     	query = url_parts.query,		
-		con ="postgres://eric:cire@localhost:5432/postgres",
+		con ="postgres://"+user_db+":cire@localhost:5432/postgres",
 		rows = [],
 		myArray = [],
 		client = new pg.Client(con),
