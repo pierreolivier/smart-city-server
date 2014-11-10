@@ -1,0 +1,18 @@
+/**
+ * Created by Pierre-Olivier on 29/06/2014.
+ */
+var configuration = {};
+
+configuration.server = {};
+configuration.mysql = {};
+
+configuration.server.port = 3010;
+configuration.server.domain = 'localhost';
+configuration.server.password = 'admin';
+
+configuration.mysql.host = 'localhost';
+configuration.mysql.user = 'smartcity';
+configuration.mysql.password = 'password';
+configuration.mysql.database = 'smartcity';
+
+module.exports = configuration;

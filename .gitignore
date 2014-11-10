@@ -35,3 +35,7 @@ node_modules
 configuration.js
 *.pem
 *.csr
+
+*~
+
+uploads/
