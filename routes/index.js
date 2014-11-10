@@ -9,14 +9,7 @@ router.get('/', function(req, res) {
 });
 
 router.post('/report/add', function(req, res) {
-    // remove all files
-    for(var file in req.files) {
-        if (req.files.hasOwnProperty(file)) {
-            fs.unlink(req.files[file].path);
-        }
-    }
-
-    res.end();
+    api.report.add(req, res);
 });
 
 module.exports = router;
