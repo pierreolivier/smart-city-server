@@ -11,6 +11,7 @@ configuration.server.domain = 'localhost';
 configuration.server.password = 'admin';
 
 configuration.mysql.host = 'localhost';
+configuration.mysql.port = '3306';
 configuration.mysql.user = 'smartcity';
 configuration.mysql.password = 'password';
 configuration.mysql.database = 'smartcity';

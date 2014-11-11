@@ -21,6 +21,7 @@ app.set('view engine', 'hjs');
 // mysql
 manager.setDatabase(mysql.createPool({
     host     : configuration.mysql.host,
+    port     : configuration.mysql.port,
     user     : configuration.mysql.user,
     password : configuration.mysql.password,
     database : configuration.mysql.database
